@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="拼桩桩共享充电收益测算器">
+  <meta name="theme-color" content="#FFFFFF">
+  <meta name="format-detection" content="telephone=no">
+  <title>共享充电收益测算器｜拼桩桩</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --navy: #142D46;
+      --orange: #EE9A02;
+      --red: #E83828;
+      --accent: #E95622;
+      --accent-soft: #FFF6EC;
+      --mist: #E6E9ED;
+      --cloud: #F3F6F8;
+      --muted: #52606D;
+      --white: #FFFFFF;
+      --success: #168B69;
+      --danger: #D84A4A;
+      --shadow: 0 10px 30px rgba(20, 45, 70, .07);
+      --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+    }
+
+    html {
+      min-width: 320px;
+      background: var(--cloud);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: var(--cloud);
+      color: var(--navy);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    .page {
+      width: min(100%, 680px);
+      margin: 0 auto;
+      padding: max(24px, env(safe-area-inset-top)) 18px max(36px, env(safe-area-inset-bottom));
+      background: var(--white);
+    }
+
+    .intro {
+      padding: 12px 2px 26px;
+      color: var(--navy);
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      background: linear-gradient(-50deg, var(--orange), var(--red));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--navy);
+      font-size: clamp(2rem, 9vw, 2.85rem);
+      font-weight: 800;
+      letter-spacing: -.035em;
+      line-height: 1.12;
+      text-wrap: balance;
+    }
+
+    .core-point {
+      max-width: 620px;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.65;
+      letter-spacing: 0;
+      word-spacing: 0;
+      text-align: left;
+    }
+
+    .calculator {
+      overflow: hidden;
+      border: 1px solid var(--mist);
+      border-radius: 18px;
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .controls {
+      padding: 28px;
+    }
+
+    .control-group {
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .control-group + .control-group {
+      margin-top: 28px;
+      padding-top: 28px;
+      border-top: 1px solid var(--mist);
+    }
+
+    .control-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .control-label,
+    .control-group legend {
+      padding: 0;
+      color: var(--navy);
+      font-size: .96rem;
+      font-weight: 750;
+      line-height: 1.4;
+    }
+
+    .value-chip {
+      flex: 0 0 auto;
+      min-width: 86px;
+      padding: 7px 11px;
+      border: 1px solid #F3D4BC;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #C84B23;
+      font-size: .9rem;
+      font-weight: 800;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .range {
+      width: 100%;
+      height: 24px;
+      margin: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .range::-webkit-slider-runnable-track {
+      height: 7px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--orange) 0, var(--red) var(--fill), #E2E5E8 var(--fill) 100%);
+    }
+
+    .range::-moz-range-track {
+      height: 7px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--orange) 0, var(--red) var(--fill), #E2E5E8 var(--fill) 100%);
+    }
+
+    .range::-webkit-slider-thumb {
+      width: 24px;
+      height: 24px;
+      margin-top: -8.5px;
+      appearance: none;
+      -webkit-appearance: none;
+      border: 4px solid var(--white);
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 2px 10px rgba(232, 56, 40, .24);
+    }
+
+    .range::-moz-range-thumb {
+      width: 17px;
+      height: 17px;
+      border: 4px solid var(--white);
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 2px 10px rgba(232, 56, 40, .24);
+    }
+
+    .range:focus-visible {
+      outline: 3px solid rgba(238, 154, 2, .24);
+      outline-offset: 4px;
+      border-radius: 999px;
+    }
+
+    .range-scale {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: .76rem;
+      line-height: 1.4;
+    }
+
+    .choice-title {
+      display: block;
+      margin-bottom: 14px;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .investment-groups {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .group-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin: 0 0 9px;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .group-label::before {
+      width: 4px;
+      height: 15px;
+      flex: 0 0 auto;
+      border-radius: 4px;
+      background: linear-gradient(180deg, var(--orange) 0%, #F07A19 78%, var(--red) 100%);
+      content: "";
+    }
+
+    .choice {
+      position: relative;
+    }
+
+    .choice input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .choice label {
+      display: flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 8px;
+      border: 1px solid var(--mist);
+      border-radius: 12px;
+      background: var(--cloud);
+      color: var(--muted);
+      font-size: .9rem;
+      font-weight: 750;
+      line-height: 1.2;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .18s ease, background .18s ease, color .18s ease, transform .18s ease;
+    }
+
+    .choice label:hover {
+      transform: translateY(-1px);
+      border-color: #EDB38E;
+    }
+
+    .choice input:checked + label {
+      border-color: var(--red);
+      background: linear-gradient(-50deg, var(--orange), var(--red));
+      color: var(--white);
+      box-shadow: 0 7px 18px rgba(232, 56, 40, .15);
+    }
+
+    .choice input:focus-visible + label {
+      outline: 3px solid rgba(238, 154, 2, .24);
+      outline-offset: 3px;
+    }
+
+    .charge-note {
+      margin: 13px 0 0;
+      color: var(--muted);
+      font-size: .82rem;
+      line-height: 1.65;
+      letter-spacing: 0;
+      word-spacing: 0;
+      text-align: left;
+    }
+
+    .charge-note strong {
+      color: var(--navy);
+      font-weight: 800;
+    }
+
+    .time-alert {
+      position: relative;
+      margin: 14px 0 0;
+      padding: 12px 14px 12px 18px;
+      overflow: hidden;
+      border: 1px solid #F6D6C6;
+      border-radius: 10px;
+      background: #FFF8F4;
+      color: #A84229;
+      font-size: .82rem;
+      line-height: 1.6;
+    }
+
+    .time-alert::before {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--orange) 0%, #F07A19 78%, var(--red) 100%);
+      content: "";
+    }
+
+    .time-alert[hidden] {
+      display: none;
+    }
+
+    .results {
+      padding: 28px;
+      border-top: 1px solid var(--mist);
+      background: #F8F9FA;
+      color: var(--navy);
+    }
+
+    .results-title {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .result-card {
+      min-width: 0;
+      padding: 20px 16px;
+      border: 1px solid var(--mist);
+      border-radius: 16px;
+      background: var(--white);
+    }
+
+    .result-label {
+      min-height: 2.8em;
+      margin: 0 0 9px;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.4;
+    }
+
+    .result-value {
+      margin: 0;
+      color: var(--navy);
+      font-size: clamp(1.5rem, 4.5vw, 2.15rem);
+      font-weight: 850;
+      letter-spacing: -.03em;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+
+    .result-card.primary .result-value {
+      background: linear-gradient(-50deg, var(--orange), var(--red));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .result-value.positive {
+      color: var(--success);
+    }
+
+    .result-value.negative {
+      color: var(--danger);
+    }
+
+    .formula {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.7;
+      letter-spacing: 0;
+      word-spacing: 0;
+      text-align: left;
+    }
+
+    .notice {
+      margin: 18px 2px 0;
+      padding: 0 4px;
+      color: var(--muted);
+      font-size: .76rem;
+      line-height: 1.65;
+      letter-spacing: 0;
+      word-spacing: 0;
+      text-align: left;
+    }
+
+    @media (max-width: 620px) {
+      .page {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+
+      .intro {
+        padding-right: 8px;
+        padding-left: 8px;
+      }
+
+      .calculator {
+        border-radius: 16px;
+      }
+
+      .controls,
+      .results {
+        padding: 22px 18px;
+      }
+
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .result-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .result-label {
+        min-height: 0;
+        margin: 0;
+        font-size: .82rem;
+      }
+
+      .result-value {
+        flex: 0 0 auto;
+        font-size: 1.58rem;
+        text-align: right;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .investment-groups {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .control-head {
+        gap: 10px;
+      }
+
+      .value-chip {
+        min-width: 78px;
+        font-size: .84rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="intro">
+      <p class="eyebrow">拼桩桩 · 共享充电</p>
+      <h1>收益测算器</h1>
+    </header>
+
+    <section class="calculator" aria-label="共享充电收益测算器">
+      <div class="controls">
+        <div class="control-group">
+          <div class="control-head">
+            <label class="control-label" for="rent">车位租金</label>
+            <output class="value-chip" id="rentValue" for="rent">300 元/月</output>
+          </div>
+          <input class="range" id="rent" type="range" min="0" max="500" step="50" value="300">
+          <div class="range-scale" aria-hidden="true"><span>0 元</span><span>500 元</span></div>
+        </div>
+
+        <div class="control-group">
+          <div class="control-head">
+            <label class="control-label" for="cars">共享车次</label>
+            <output class="value-chip" id="carsValue" for="cars">2 次/天</output>
+          </div>
+          <input class="range" id="cars" type="range" min="1" max="6" step="1" value="2">
+          <div class="range-scale" aria-hidden="true"><span>1 次</span><span>6 次</span></div>
+        </div>
+
+        <div class="control-group">
+          <div class="control-head">
+            <label class="control-label" for="hours">共享时长</label>
+            <output class="value-chip" id="hoursValue" for="hours">4 小时/辆</output>
+          </div>
+          <input class="range" id="hours" type="range" min="1" max="10" step="1" value="4">
+          <div class="range-scale" aria-hidden="true"><span>1 小时/辆</span><span>10 小时/辆</span></div>
+          <p class="charge-note">按 7kW 充电桩估算，每小时约可充 7 度电；当前每辆车约充 <strong id="energyValue">28 度</strong>。</p>
+          <p class="time-alert" id="timeAlert" role="status" hidden><strong>请核对时长：</strong><span id="timeAlertText"></span></p>
+        </div>
+
+        <fieldset class="control-group">
+          <legend class="choice-title">度电收益</legend>
+          <div class="choices" style="--columns: 2">
+            <div class="choice">
+              <input id="profit020" type="radio" name="profit" value="0.20">
+              <label for="profit020">0.20 元/度</label>
+            </div>
+            <div class="choice">
+              <input id="profit025" type="radio" name="profit" value="0.25" checked>
+              <label for="profit025">0.25 元/度</label>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="control-group">
+          <legend class="choice-title">初始投入</legend>
+          <div class="investment-groups">
+            <div class="investment-group">
+              <p class="group-label">控制器</p>
+              <div class="choices" style="--columns: 2">
+                <div class="choice">
+                  <input id="invest0" type="radio" name="invest" value="0">
+                  <label for="invest0">0 元</label>
+                </div>
+                <div class="choice">
+                  <input id="invest199" type="radio" name="invest" value="199">
+                  <label for="invest199">199 元</label>
+                </div>
+              </div>
+            </div>
+            <div class="investment-group">
+              <p class="group-label">充电桩</p>
+              <div class="choices" style="--columns: 2">
+                <div class="choice">
+                  <input id="invest1300" type="radio" name="invest" value="1300" checked>
+                  <label for="invest1300">1300 元</label>
+                </div>
+                <div class="choice">
+                  <input id="invest1800" type="radio" name="invest" value="1800">
+                  <label for="invest1800">1800 元</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <section class="results" aria-labelledby="resultsTitle" aria-live="polite">
+        <h2 class="results-title" id="resultsTitle">测算结果</h2>
+        <div class="result-grid">
+          <article class="result-card primary">
+            <p class="result-label">月共享收入</p>
+            <p class="result-value" id="monthlyIncome">420 元</p>
+          </article>
+          <article class="result-card">
+            <p class="result-label">扣除租金后月净收入</p>
+            <p class="result-value positive" id="netIncome">+120 元</p>
+          </article>
+          <article class="result-card">
+            <p class="result-label">预计回本周期</p>
+            <p class="result-value" id="payback">10.8 个月</p>
+          </article>
+        </div>
+        <p class="formula">月共享收入 = 共享车次 × 每辆共享时长 × 7 度/小时 × 度电收益 × 30 天</p>
+      </section>
+    </section>
+
+    <p class="notice">共享收入受共享时长、订单量、所在小区需求、电价、服务费及合作模式等因素影响，测算结果仅供参考，不构成收益承诺。</p>
+  </main>
+
+  <script>
+    (() => {
+      const rent = document.getElementById('rent');
+      const cars = document.getElementById('cars');
+      const hours = document.getElementById('hours');
+      const rentValue = document.getElementById('rentValue');
+      const carsValue = document.getElementById('carsValue');
+      const hoursValue = document.getElementById('hoursValue');
+      const energyValue = document.getElementById('energyValue');
+      const timeAlert = document.getElementById('timeAlert');
+      const timeAlertText = document.getElementById('timeAlertText');
+      const monthlyIncome = document.getElementById('monthlyIncome');
+      const netIncome = document.getElementById('netIncome');
+      const payback = document.getElementById('payback');
+      const ranges = [rent, cars, hours];
+      const CHARGER_KW = 7;
+
+      const formatAmount = (value) => Math.round(value).toLocaleString('zh-CN');
+
+      function selectedNumber(name) {
+        return Number(document.querySelector(`input[name="${name}"]:checked`).value);
+      }
+
+      function setRangeFill(input) {
+        const min = Number(input.min);
+        const max = Number(input.max);
+        const progress = ((Number(input.value) - min) / (max - min)) * 100;
+        input.style.setProperty('--fill', `${progress}%`);
+      }
+
+      function calculate() {
+        const rentAmount = Number(rent.value);
+        const dailyCars = Number(cars.value);
+        const hoursPerCar = Number(hours.value);
+        const profitPerKwh = selectedNumber('profit');
+        const initialInvestment = selectedNumber('invest');
+        const perCarKwh = hoursPerCar * CHARGER_KW;
+        const occupiedHours = dailyCars * hoursPerCar;
+
+        rentValue.textContent = `${rentAmount} 元/月`;
+        carsValue.textContent = `${dailyCars} 次/天`;
+        hoursValue.textContent = `${hoursPerCar} 小时/辆`;
+        energyValue.textContent = `${perCarKwh} 度`;
+
+        const hasTimeConflict = occupiedHours > 24;
+        timeAlert.hidden = !hasTimeConflict;
+        timeAlertText.textContent = hasTimeConflict
+          ? `当前合计 ${occupiedHours} 小时/天，已超过一天 24 小时。若按单个充电桩测算，请调整共享车次或每辆共享时长。`
+          : '';
+
+        ranges.forEach(setRangeFill);
+
+        const monthly = dailyCars * perCarKwh * profitPerKwh * 30;
+        const net = monthly - rentAmount;
+
+        monthlyIncome.textContent = `${formatAmount(monthly)} 元`;
+        netIncome.textContent = `${net >= 0 ? '+' : '−'}${formatAmount(Math.abs(net))} 元`;
+        netIncome.classList.toggle('positive', net >= 0);
+        netIncome.classList.toggle('negative', net < 0);
+
+        if (initialInvestment === 0) {
+          payback.textContent = '无需回本';
+        } else if (net <= 0) {
+          payback.textContent = '暂未覆盖';
+        } else {
+          payback.textContent = `${(initialInvestment / net).toFixed(1)} 个月`;
+        }
+      }
+
+      function validateToolInput(input) {
+        const validRent = Number.isFinite(input?.rent)
+          && input.rent >= 0
+          && input.rent <= 500
+          && input.rent % 50 === 0;
+        const validCars = Number.isInteger(input?.dailyCars)
+          && input.dailyCars >= 1
+          && input.dailyCars <= 6;
+        const validHours = Number.isInteger(input?.hoursPerCar)
+          && input.hoursPerCar >= 1
+          && input.hoursPerCar <= 10;
+        const validProfit = [0.2, 0.25].includes(input?.profitPerKwh);
+        const validInvestment = [0, 199, 1300, 1800].includes(input?.initialInvestment);
+
+        if (!validRent || !validCars || !validHours || !validProfit || !validInvestment) {
+          throw new RangeError('测算参数超出页面允许范围。');
+        }
+      }
+
+      ranges.forEach((input) => input.addEventListener('input', calculate));
+      document.querySelectorAll('input[type="radio"]').forEach((input) => {
+        input.addEventListener('change', calculate);
+      });
+
+      calculate();
+
+      const modelContext = document.modelContext;
+      if (modelContext?.registerTool) {
+        try {
+          void Promise.resolve(modelContext.registerTool({
+            name: 'calculate_shared_charging_income',
+            title: '测算共享充电收入',
+            description: '使用给定参数更新页面上的共享充电收入测算结果。',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                rent: { type: 'number', minimum: 0, maximum: 500, multipleOf: 50 },
+                dailyCars: { type: 'integer', minimum: 1, maximum: 6 },
+                hoursPerCar: { type: 'integer', minimum: 1, maximum: 10 },
+                profitPerKwh: { type: 'number', enum: [0.2, 0.25] },
+                initialInvestment: { type: 'number', enum: [0, 199, 1300, 1800] }
+              },
+              required: ['rent', 'dailyCars', 'hoursPerCar', 'profitPerKwh', 'initialInvestment'],
+              additionalProperties: false
+            },
+            annotations: { readOnlyHint: false, untrustedContentHint: false },
+            execute(input) {
+              validateToolInput(input);
+              rent.value = String(input.rent);
+              cars.value = String(input.dailyCars);
+              hours.value = String(input.hoursPerCar);
+              document.querySelector(`input[name="profit"][value="${input.profitPerKwh.toFixed(2)}"]`).checked = true;
+              document.querySelector(`input[name="invest"][value="${input.initialInvestment}"]`).checked = true;
+              calculate();
+              return {
+                monthlyIncome: monthlyIncome.textContent,
+                netMonthlyIncome: netIncome.textContent,
+                paybackPeriod: payback.textContent,
+                estimatedKwhPerCar: Number(hours.value) * CHARGER_KW,
+                totalOccupiedHoursPerDay: Number(cars.value) * Number(hours.value),
+                timeWarning: timeAlert.hidden ? null : timeAlertText.textContent
+              };
+            }
+          }));
+        } catch (error) {
+          console.warn('WebMCP tool registration failed.', error);
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
